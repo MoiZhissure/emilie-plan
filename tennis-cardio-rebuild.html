@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tennis Cardio Rebuild — 4 Week Plan</title>
+<style>
+  :root {
+    --court: #123524;
+    --court-light: #1c4a33;
+    --line: #eef2ea;
+    --line-dim: #b9c6bc;
+    --ball: #d4e157;
+    --ball-dim: #9aab3a;
+    --clay: #b0503a;
+    --card-bg: #17402c;
+    --done: #6b8f5c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--court);
+    background-image:
+      linear-gradient(var(--court), var(--court)),
+      repeating-linear-gradient(0deg, rgba(238,242,234,0.025) 0px, rgba(238,242,234,0.025) 1px, transparent 1px, transparent 80px);
+    color: var(--line);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px 0;
+  }
+  header {
+    padding: 36px 20px 24px 20px;
+    border-bottom: 2px solid var(--court-light);
+    position: relative;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 20px;
+    width: 46px; height: 2px;
+    background: var(--ball);
+  }
+  h1 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px 0;
+    line-height: 1.2;
+  }
+  .sub {
+    color: var(--line-dim);
+    font-size: 0.92rem;
+    max-width: 60ch;
+  }
+  .weeknav {
+    display: flex;
+    gap: 8px;
+    padding: 18px 20px;
+    overflow-x: auto;
+  }
+  .weeknav button {
+    flex: 1;
+    min-width: 76px;
+    background: var(--card-bg);
+    border: 1px solid var(--court-light);
+    color: var(--line-dim);
+    padding: 10px 6px;
+    border-radius: 3px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .weeknav button .wk-label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 400;
+    margin-top: 2px;
+    opacity: 0.8;
+  }
+  .weeknav button.active {
+    background: var(--ball);
+    color: var(--court);
+    border-color: var(--ball);
+  }
+  .weeknav button.active .wk-label { color: var(--court); opacity: 0.75; }
+
+  main { padding: 4px 20px 20px 20px; max-width: 640px; margin: 0 auto; }
+
+  .week-intro {
+    font-size: 0.9rem;
+    color: var(--line-dim);
+    padding: 10px 0 18px 0;
+    border-bottom: 1px solid var(--court-light);
+    margin-bottom: 4px;
+  }
+  .week-intro strong { color: var(--line); }
+
+  .day {
+    display: flex;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--court-light);
+    align-items: flex-start;
+  }
+  .day.rest { opacity: 0.65; }
+  .daynum {
+    width: 34px;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: var(--ball-dim);
+    font-weight: 700;
+    padding-top: 3px;
+    text-align: right;
+  }
+  .checkbox {
+    width: 22px; height: 22px;
+    border: 2px solid var(--line-dim);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .checkbox.checked {
+    background: var(--done);
+    border-color: var(--done);
+  }
+  .checkbox.checked::after {
+    content: '✓';
+    color: var(--court);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .day-content { flex: 1; }
+  .day-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  .day-title .tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--court);
+    background: var(--ball);
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .day-title .tag.leg { background: var(--clay); color: var(--line); }
+  .day-title .tag.rest-tag { background: transparent; border: 1px solid var(--line-dim); color: var(--line-dim); }
+  .day-desc {
+    font-size: 0.87rem;
+    color: var(--line-dim);
+    line-height: 1.5;
+  }
+  .checked ~ .day-content .day-title,
+  .day.done .day-title { text-decoration: line-through; text-decoration-color: var(--done); }
+  .day.done .day-desc { opacity: 0.7; }
+
+  .progress-wrap {
+    padding: 4px 0 22px 0;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--line-dim);
+    margin-bottom: 6px;
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--court-light);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--ball);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+
+  .notes {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: var(--card-bg);
+    border-left: 3px solid var(--clay);
+    border-radius: 2px;
+    font-size: 0.85rem;
+    color: var(--line-dim);
+    line-height: 1.55;
+  }
+  .notes strong { color: var(--line); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Cardio Rebuild for Tennis</h1>
+  <div class="sub">Four weeks, rower-led. Base first, then match-speed intervals and leg drive. Athletic foundation is already there — this just gets the engine caught back up to it.</div>
+</header>
+
+<div class="weeknav" id="weeknav"></div>
+
+<main>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="progress-text">0 of 0 sessions done</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="week-intro" id="week-intro"></div>
+  <div id="day-list"></div>
+
+  <div class="notes" id="week-notes"></div>
+</main>
+
+<script>
+const PLAN = [
+  {
+    label: "Base",
+    intro: "<strong>Goal:</strong> rebuild aerobic volume without digging a fatigue hole. Everything conversational pace, rate 18–22 spm.",
+    notes: "<strong>Week 1 note:</strong> resist the urge to push pace. The point is time on the erg, not effort. If a steady row feels too easy, that's correct.",
+    days: [
+      { title: "Steady state", tag: "cardio", desc: "20 min, rate 18–20 spm. Full pressure but conversational — you should be able to talk in full sentences." },
+      { title: "Rest / mobility", tag: "rest", rest: true, desc: "Hips, ankles, shoulders. Nothing structured." },
+      { title: "Steady state + leg drive drill", tag: "cardio", desc: "25 min steady, plus 5 min of pause rows at the catch to groove leg-first sequencing." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Off." },
+      { title: "Steady state", tag: "cardio", desc: "25 min, rate 18–20 spm. Same as Monday — consistency matters more than progression this week." },
+      { title: "Easy row (optional)", tag: "rest", rest: true, desc: "15 min very light, or skip entirely if legs feel heavy." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Full rest." }
+    ]
+  },
+  {
+    label: "Build",
+    intro: "<strong>Goal:</strong> introduce intervals on top of the base. Volume holds steady, intensity ticks up on two days.",
+    notes: "<strong>Week 2 note:</strong> the interval days are where you'll feel the biggest jump from the base you already have. Keep the steady days genuinely easy so the hard days can be hard.",
+    days: [
+      { title: "Steady state", tag: "cardio", desc: "25 min, rate 18–20 spm." },
+      { title: "Rally intervals", tag: "cardio", desc: "8 × (30 sec hard / 30 sec rest), rate 26–28 spm on the work intervals. Mirrors a typical rally length." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Off." },
+      { title: "Steady + pause rows", tag: "leg", desc: "30 min steady, finishing with 6 × pause rows (hold at the catch, then explode through the drive)." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Off." },
+      { title: "Grinding-rally intervals", tag: "cardio", desc: "6 × (2 min hard / 1 min rest), rate 24–26 spm. Longer, baseline-exchange pacing." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Full rest." }
+    ]
+  },
+  {
+    label: "Intensify",
+    intro: "<strong>Goal:</strong> match-intensity work and dedicated leg power. This is the loading week — expect real fatigue.",
+    notes: "<strong>Week 3 note:</strong> leg power day uses a high damper (7–9) for a strong, fast catch. If form breaks down under fatigue, drop the damper setting before you drop intensity.",
+    days: [
+      { title: "Steady state", tag: "cardio", desc: "30 min, rate 18–20 spm." },
+      { title: "Match-speed intervals", tag: "cardio", desc: "10 × (30 sec hard / 30 sec rest), rate 28–30 spm." },
+      { title: "Leg power", tag: "leg", desc: "5 × 250m, damper 7–9, fast catch-to-drive. Full recovery between reps — this trains power output, not endurance." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Off." },
+      { title: "Grinding-rally intervals", tag: "cardio", desc: "5 × (2 min hard / 1 min rest), rate 26 spm." },
+      { title: "Easy row + footwork", tag: "cardio", desc: "20 min easy row, then 10 min of court footwork — split steps, side shuffles, first-step drills." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Full rest." }
+    ]
+  },
+  {
+    label: "Test",
+    intro: "<strong>Goal:</strong> confirm the gains and integrate back onto the court. Volume tapers, one benchmark piece to measure progress.",
+    notes: "<strong>Week 4 note:</strong> the 2000m time trial is your marker — write the split down and re-test in 4–6 weeks to check progress. By Saturday you should be ready for a full practice session.",
+    days: [
+      { title: "Easy steady state", tag: "cardio", desc: "20 min easy, rate 18 spm. Shake out, nothing hard." },
+      { title: "2000m time trial", tag: "cardio", desc: "All-out 2000m for time. This is your benchmark — record the split." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Off after the time trial." },
+      { title: "Match-simulation intervals", tag: "cardio", desc: "12 × (30 sec hard / 30 sec rest), rate 28–30 spm." },
+      { title: "Leg power", tag: "leg", desc: "6 × 250m, damper 7–9, fast catch-to-drive." },
+      { title: "Easy row + full practice", tag: "cardio", desc: "15 min easy row as a warm-up, then a full on-court practice session." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Full rest before next block." }
+    ]
+  }
+];
+
+let currentWeek = 0;
+let state = {};
+
+async function loadState() {
+  try {
+    const result = await window.storage.get('tennis-cardio-progress');
+    state = result ? JSON.parse(result.value) : {};
+  } catch (e) {
+    state = {};
+  }
+  render();
+}
+
+async function saveState() {
+  try {
+    await window.storage.set('tennis-cardio-progress', JSON.stringify(state));
+  } catch (e) {
+    console.error('Save failed', e);
+  }
+}
+
+function toggleDay(wk, dayIdx) {
+  const key = wk + '-' + dayIdx;
+  state[key] = !state[key];
+  saveState();
+  render();
+}
+
+function renderNav() {
+  const nav = document.getElementById('weeknav');
+  nav.innerHTML = '';
+  PLAN.forEach((wk, i) => {
+    const btn = document.createElement('button');
+    btn.className = i === currentWeek ? 'active' : '';
+    btn.innerHTML = 'Week ' + (i + 1) + '<span class="wk-label">' + wk.label + '</span>';
+    btn.onclick = () => { currentWeek = i; render(); };
+    nav.appendChild(btn);
+  });
+}
+
+function render() {
+  renderNav();
+  const wk = PLAN[currentWeek];
+  document.getElementById('week-intro').innerHTML = wk.intro;
+  document.getElementById('week-notes').innerHTML = wk.notes;
+
+  const list = document.getElementById('day-list');
+  list.innerHTML = '';
+  let doneCount = 0;
+  const trainingDays = wk.days.filter(d => !d.rest).length;
+
+  wk.days.forEach((day, idx) => {
+    const key = currentWeek + '-' + idx;
+    const isDone = !!state[key];
+    if (isDone && !day.rest) doneCount++;
+
+    const row = document.createElement('div');
+    row.className = 'day' + (day.rest ? ' rest' : '') + (isDone ? ' done' : '');
+
+    const dayNum = document.createElement('div');
+    dayNum.className = 'daynum';
+    dayNum.textContent = ['MON','TUE','WED','THU','FRI','SAT','SUN'][idx];
+    row.appendChild(dayNum);
+
+    if (!day.rest) {
+      const cb = document.createElement('div');
+      cb.className = 'checkbox' + (isDone ? ' checked' : '');
+      cb.onclick = () => toggleDay(currentWeek, idx);
+      row.appendChild(cb);
+    } else {
+      const spacer = document.createElement('div');
+      spacer.style.width = '22px';
+      spacer.style.flexShrink = '0';
+      row.appendChild(spacer);
+    }
+
+    const content = document.createElement('div');
+    content.className = 'day-content';
+    const tagClass = day.rest ? 'tag rest-tag' : (day.tag === 'leg' ? 'tag leg' : 'tag');
+    content.innerHTML = '<div class="day-title">' + day.title + '<span class="' + tagClass + '">' + (day.rest ? 'rest' : day.tag) + '</span></div>' +
+      '<div class="day-desc">' + day.desc + '</div>';
+    row.appendChild(content);
+
+    list.appendChild(row);
+  });
+
+  const pct = trainingDays ? Math.round((doneCount / trainingDays) * 100) : 0;
+  document.getElementById('progress-text').textContent = doneCount + ' of ' + trainingDays + ' sessions done';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+loadState();
+</script>
+
+</body>
+</html>
