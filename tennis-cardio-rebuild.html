@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tennis Cardio Rebuild — 4 Week Plan</title>
+<style>
+  :root {
+    --court: #123524;
+    --court-light: #1c4a33;
+    --line: #eef2ea;
+    --line-dim: #b9c6bc;
+    --ball: #d4e157;
+    --ball-dim: #9aab3a;
+    --clay: #b0503a;
+    --card-bg: #17402c;
+    --done: #6b8f5c;
+    --alert: #e0876b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--court);
+    background-image:
+      linear-gradient(var(--court), var(--court)),
+      repeating-linear-gradient(0deg, rgba(238,242,234,0.025) 0px, rgba(238,242,234,0.025) 1px, transparent 1px, transparent 80px);
+    color: var(--line);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px 0;
+  }
+  header {
+    padding: 36px 20px 24px 20px;
+    border-bottom: 2px solid var(--court-light);
+    position: relative;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 20px;
+    width: 46px; height: 2px;
+    background: var(--ball);
+  }
+  h1 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px 0;
+    line-height: 1.2;
+  }
+  .sub {
+    color: var(--line-dim);
+    font-size: 0.92rem;
+    max-width: 60ch;
+  }
+  .weeknav {
+    display: flex;
+    gap: 8px;
+    padding: 18px 20px;
+    overflow-x: auto;
+  }
+  .weeknav button {
+    flex: 1;
+    min-width: 76px;
+    background: var(--card-bg);
+    border: 1px solid var(--court-light);
+    color: var(--line-dim);
+    padding: 10px 6px;
+    border-radius: 3px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .weeknav button .wk-label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 400;
+    margin-top: 2px;
+    opacity: 0.8;
+  }
+  .weeknav button.active {
+    background: var(--ball);
+    color: var(--court);
+    border-color: var(--ball);
+  }
+  .weeknav button.active .wk-label { color: var(--court); opacity: 0.75; }
+
+  main { padding: 4px 20px 20px 20px; max-width: 640px; margin: 0 auto; }
+
+  .week-intro {
+    font-size: 0.9rem;
+    color: var(--line-dim);
+    padding: 10px 0 18px 0;
+    border-bottom: 1px solid var(--court-light);
+    margin-bottom: 4px;
+  }
+  .week-intro strong { color: var(--line); }
+
+  .day {
+    display: flex;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--court-light);
+    align-items: flex-start;
+  }
+  .day.rest { opacity: 0.65; }
+  .daynum {
+    width: 34px;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: var(--ball-dim);
+    font-weight: 700;
+    padding-top: 3px;
+    text-align: right;
+  }
+  .checkbox {
+    width: 22px; height: 22px;
+    border: 2px solid var(--line-dim);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .checkbox.checked {
+    background: var(--done);
+    border-color: var(--done);
+  }
+  .checkbox.checked::after {
+    content: '✓';
+    color: var(--court);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .day-content { flex: 1; }
+  .day-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  .day-title .tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--court);
+    background: var(--ball);
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .day-title .tag.leg { background: var(--clay); color: var(--line); }
+  .day-title .tag.rest-tag { background: transparent; border: 1px solid var(--line-dim); color: var(--line-dim); }
+  .day-desc {
+    font-size: 0.87rem;
+    color: var(--line-dim);
+    line-height: 1.5;
+  }
+  .day.done .day-title { text-decoration: line-through; text-decoration-color: var(--done); }
+  .day.done .day-desc { opacity: 0.7; }
+
+  .progress-wrap {
+    padding: 4px 0 22px 0;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--line-dim);
+    margin-bottom: 6px;
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--court-light);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--ball);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+
+  .notes {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: var(--card-bg);
+    border-left: 3px solid var(--clay);
+    border-radius: 2px;
+    font-size: 0.85rem;
+    color: var(--line-dim);
+    line-height: 1.55;
+  }
+  .notes strong { color: var(--line); }
+
+  footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 14px;
+    border-top: 1px solid var(--court-light);
+  }
+  footer .src {
+    font-size: 0.75rem;
+    color: var(--line-dim);
+  }
+  .sync-warn { color: var(--alert); font-weight: 600; }
+  footer button {
+    font-size: 0.75rem;
+    color: var(--line-dim);
+    background: none;
+    border: 1px solid var(--court-light);
+    padding: 7px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  footer button:hover { color: var(--ball); border-color: var(--ball-dim); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Cardio Rebuild for Tennis</h1>
+  <div class="sub">Four weeks, rower-led. Base first, then match-speed intervals and leg drive. Athletic foundation is already there — this just gets the engine caught back up to it.</div>
+</header>
+
+<div class="weeknav" id="weeknav"></div>
+
+<main>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="progress-text">0 of 0 sessions done</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="week-intro" id="week-intro"></div>
+  <div id="day-list"></div>
+
+  <div class="notes" id="week-notes"></div>
+
+  <footer>
+    <span class="src" id="savedLabel">Not saved</span>
+    <span style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="syncBtn">Set up sync</button>
+      <button id="refreshBtn">Refresh</button>
+      <button id="saveBtn">Save</button>
+      <button id="resetBtn">Reset</button>
+    </span>
+  </footer>
+</main>
+
+<script>
+const PLAN = [
+  {
+    label: "Base",
+    intro: "<strong>Goal:</strong> rebuild aerobic volume without digging a fatigue hole. Everything conversational pace, rate 18\u201322 spm.",
+    notes: "<strong>Week 1 note:</strong> resist the urge to push pace. The point is time on the erg, not effort. If a steady row feels too easy, that's correct.",
+    days: [
+      { title: "Steady state", tag: "cardio", desc: "20 min, rate 18\u201320 spm. Full pressure but conversational \u2014 you should be able to talk in full sentences." },
+      { title: "Rest / mobility", tag: "rest", rest: true, desc: "Hips, ankles, shoulders. Nothing structured." },
+      { title: "Steady state + leg drive drill", tag: "cardio", desc: "25 min steady, plus 5 min of pause rows at the catch to groove leg-first sequencing." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Off." },
+      { title: "Steady state", tag: "cardio", desc: "25 min, rate 18\u201320 spm. Same as Monday \u2014 consistency matters more than progression this week." },
+      { title: "Easy row (optional)", tag: "rest", rest: true, desc: "15 min very light, or skip entirely if legs feel heavy." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Full rest." }
+    ]
+  },
+  {
+    label: "Build",
+    intro: "<strong>Goal:</strong> introduce intervals on top of the base. Volume holds steady, intensity ticks up on two days.",
+    notes: "<strong>Week 2 note:</strong> the interval days are where you'll feel the biggest jump from the base you already have. Keep the steady days genuinely easy so the hard days can be hard.",
+    days: [
+      { title: "Steady state", tag: "cardio", desc: "25 min, rate 18\u201320 spm." },
+      { title: "Rally intervals", tag: "cardio", desc: "8 \u00d7 (30 sec hard / 30 sec rest), rate 26\u201328 spm on the work intervals. Mirrors a typical rally length." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Off." },
+      { title: "Steady + pause rows", tag: "leg", desc: "30 min steady, finishing with 6 \u00d7 pause rows (hold at the catch, then explode through the drive)." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Off." },
+      { title: "Grinding-rally intervals", tag: "cardio", desc: "6 \u00d7 (2 min hard / 1 min rest), rate 24\u201326 spm. Longer, baseline-exchange pacing." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Full rest." }
+    ]
+  },
+  {
+    label: "Intensify",
+    intro: "<strong>Goal:</strong> match-intensity work and dedicated leg power. This is the loading week \u2014 expect real fatigue.",
+    notes: "<strong>Week 3 note:</strong> leg power day uses a high damper (7\u20139) for a strong, fast catch. If form breaks down under fatigue, drop the damper setting before you drop intensity.",
+    days: [
+      { title: "Steady state", tag: "cardio", desc: "30 min, rate 18\u201320 spm." },
+      { title: "Match-speed intervals", tag: "cardio", desc: "10 \u00d7 (30 sec hard / 30 sec rest), rate 28\u201330 spm." },
+      { title: "Leg power", tag: "leg", desc: "5 \u00d7 250m, damper 7\u20139, fast catch-to-drive. Full recovery between reps \u2014 this trains power output, not endurance." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Off." },
+      { title: "Grinding-rally intervals", tag: "cardio", desc: "5 \u00d7 (2 min hard / 1 min rest), rate 26 spm." },
+      { title: "Easy row + footwork", tag: "cardio", desc: "20 min easy row, then 10 min of court footwork \u2014 split steps, side shuffles, first-step drills." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Full rest." }
+    ]
+  },
+  {
+    label: "Test",
+    intro: "<strong>Goal:</strong> confirm the gains and integrate back onto the court. Volume tapers, one benchmark piece to measure progress.",
+    notes: "<strong>Week 4 note:</strong> the 2000m time trial is your marker \u2014 write the split down and re-test in 4\u20136 weeks to check progress. By Saturday you should be ready for a full practice session.",
+    days: [
+      { title: "Easy steady state", tag: "cardio", desc: "20 min easy, rate 18 spm. Shake out, nothing hard." },
+      { title: "2000m time trial", tag: "cardio", desc: "All-out 2000m for time. This is your benchmark \u2014 record the split." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Off after the time trial." },
+      { title: "Match-simulation intervals", tag: "cardio", desc: "12 \u00d7 (30 sec hard / 30 sec rest), rate 28\u201330 spm." },
+      { title: "Leg power", tag: "leg", desc: "6 \u00d7 250m, damper 7\u20139, fast catch-to-drive." },
+      { title: "Easy row + full practice", tag: "cardio", desc: "15 min easy row as a warm-up, then a full on-court practice session." },
+      { title: "Rest", tag: "rest", rest: true, desc: "Full rest before next block." }
+    ]
+  }
+];
+
+let currentWeek = 0;
+let state = {};
+
+// ============================================================
+// SYNC CONFIG - reuses the same Firebase Realtime Database as
+// the Emilie plan, but writes under a separate top-level path
+// ("tennisState") so the two plans never collide.
+// ============================================================
+const DEFAULT_DB_URL = "https://emilie-plan-default-rtdb.europe-west1.firebasedatabase.app";
+const DB_URL_KEY = "tennis-plan-firebase-url";
+const LS_KEY = "tennis-cardio-progress-v1";
+
+let lastSaved = null;
+let lastSyncedRemote = null;
+let syncError = null;
+
+function getDbUrl(){
+  try {
+    const stored = (localStorage.getItem(DB_URL_KEY) || "").trim().replace(/\/$/, "");
+    if (stored) return stored;
+  } catch(e) {}
+  return DEFAULT_DB_URL.trim().replace(/\/$/, "");
+}
+function setDbUrl(url){
+  try { localStorage.setItem(DB_URL_KEY, url.trim().replace(/\/$/, "")); } catch(e) {}
+}
+
+async function fetchRemoteState(){
+  const url = getDbUrl();
+  if (!url) return null;
+  try {
+    const res = await fetch(url + "/tennisState.json");
+    if (res.status === 401 || res.status === 403) {
+      syncError = "Access denied - Firebase rules may not cover this path yet.";
+      return null;
+    }
+    if (!res.ok) {
+      syncError = "Sync error (code " + res.status + ").";
+      return null;
+    }
+    const data = await res.json();
+    syncError = null;
+    return data;
+  } catch(e) {
+    syncError = "Offline or invalid Firebase link - sync paused.";
+    return null;
+  }
+}
+
+async function pushRemoteState(){
+  const url = getDbUrl();
+  if (!url) return false;
+  try {
+    const res = await fetch(url + "/tennisState.json", {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(state)
+    });
+    if (res.status === 401 || res.status === 403) {
+      syncError = "Access denied - Firebase rules may not cover this path yet.";
+      return false;
+    }
+    if (!res.ok) {
+      syncError = "Sync error (code " + res.status + ").";
+      return false;
+    }
+    syncError = null;
+    return true;
+  } catch(e) {
+    syncError = "Offline or invalid Firebase link - sync paused.";
+    return false;
+  }
+}
+
+async function loadState(){
+  const url = getDbUrl();
+  if (url) {
+    const remote = await fetchRemoteState();
+    if (remote) {
+      state = remote;
+      lastSyncedRemote = JSON.stringify(remote);
+      render();
+      return;
+    }
+  }
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) state = JSON.parse(raw);
+  } catch(e) {}
+  render();
+}
+
+async function saveState(silent){
+  let ok = false;
+  const url = getDbUrl();
+  if (url) {
+    ok = await pushRemoteState();
+    if (ok) lastSyncedRemote = JSON.stringify(state);
+  }
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); ok = true; } catch(e) {}
+  if (ok) { lastSaved = new Date(); }
+  updateSavedLabel();
+  if (!silent) flashSaveButton(ok);
+}
+
+async function refreshFromRemote(manual){
+  const url = getDbUrl();
+  if (!url) {
+    if (manual) alert("No sync configured yet. Click 'Set up sync' first.");
+    return;
+  }
+  const remote = await fetchRemoteState();
+  updateSavedLabel();
+  if (remote) {
+    const remoteStr = JSON.stringify(remote);
+    if (remoteStr !== lastSyncedRemote) {
+      state = remote;
+      lastSyncedRemote = remoteStr;
+      render();
+    }
+  }
+  if (manual) flashRefreshButton(!!remote);
+}
+
+function flashRefreshButton(ok){
+  const btn = document.getElementById("refreshBtn");
+  if (!btn) return;
+  btn.textContent = ok ? "Up to date \u2713" : "Nothing to load";
+  btn.disabled = true;
+  setTimeout(() => { btn.textContent = "Refresh"; btn.disabled = false; }, 1400);
+}
+
+function flashSaveButton(ok){
+  const btn = document.getElementById("saveBtn");
+  if (!btn) return;
+  btn.textContent = ok ? "Saved \u2713" : "Failed";
+  btn.disabled = true;
+  setTimeout(() => { btn.textContent = "Save"; btn.disabled = false; }, 1400);
+}
+
+function updateSavedLabel(){
+  const el = document.getElementById("savedLabel");
+  if (!el) return;
+  const synced = !!getDbUrl();
+  if (synced && syncError) {
+    el.textContent = "\u26A0 " + syncError;
+    el.classList.add("sync-warn");
+    return;
+  }
+  el.classList.remove("sync-warn");
+  if (lastSaved) {
+    const t = lastSaved.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    el.textContent = (synced ? "Synced at " : "Saved at ") + t;
+  } else {
+    el.textContent = synced ? "Sync configured" : "Not saved";
+  }
+}
+
+function toggleDay(wk, dayIdx){
+  const key = wk + '-' + dayIdx;
+  state[key] = !state[key];
+  saveState(true);
+  render();
+}
+
+function renderNav() {
+  const nav = document.getElementById('weeknav');
+  nav.innerHTML = '';
+  PLAN.forEach((wk, i) => {
+    const btn = document.createElement('button');
+    btn.className = i === currentWeek ? 'active' : '';
+    btn.innerHTML = 'Week ' + (i + 1) + '<span class="wk-label">' + wk.label + '</span>';
+    btn.onclick = () => { currentWeek = i; render(); };
+    nav.appendChild(btn);
+  });
+}
+
+function render() {
+  renderNav();
+  const wk = PLAN[currentWeek];
+  document.getElementById('week-intro').innerHTML = wk.intro;
+  document.getElementById('week-notes').innerHTML = wk.notes;
+
+  const list = document.getElementById('day-list');
+  list.innerHTML = '';
+  let doneCount = 0;
+  const trainingDays = wk.days.filter(d => !d.rest).length;
+
+  wk.days.forEach((day, idx) => {
+    const key = currentWeek + '-' + idx;
+    const isDone = !!state[key];
+    if (isDone && !day.rest) doneCount++;
+
+    const row = document.createElement('div');
+    row.className = 'day' + (day.rest ? ' rest' : '') + (isDone ? ' done' : '');
+
+    const dayNum = document.createElement('div');
+    dayNum.className = 'daynum';
+    dayNum.textContent = ['MON','TUE','WED','THU','FRI','SAT','SUN'][idx];
+    row.appendChild(dayNum);
+
+    if (!day.rest) {
+      const cb = document.createElement('div');
+      cb.className = 'checkbox' + (isDone ? ' checked' : '');
+      cb.onclick = () => toggleDay(currentWeek, idx);
+      row.appendChild(cb);
+    } else {
+      const spacer = document.createElement('div');
+      spacer.style.width = '22px';
+      spacer.style.flexShrink = '0';
+      row.appendChild(spacer);
+    }
+
+    const content = document.createElement('div');
+    content.className = 'day-content';
+    const tagClass = day.rest ? 'tag rest-tag' : (day.tag === 'leg' ? 'tag leg' : 'tag');
+    content.innerHTML = '<div class="day-title">' + day.title + '<span class="' + tagClass + '">' + (day.rest ? 'rest' : day.tag) + '</span></div>' +
+      '<div class="day-desc">' + day.desc + '</div>';
+    row.appendChild(content);
+
+    list.appendChild(row);
+  });
+
+  const pct = trainingDays ? Math.round((doneCount / trainingDays) * 100) : 0;
+  document.getElementById('progress-text').textContent = doneCount + ' of ' + trainingDays + ' sessions done';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+document.getElementById('resetBtn').onclick = async () => {
+  if (confirm('Clear all checked sessions?')) {
+    state = {};
+    await saveState(true);
+    render();
+  }
+};
+document.getElementById('saveBtn').onclick = () => { saveState(false); };
+document.getElementById('refreshBtn').onclick = () => { refreshFromRemote(true); };
+document.getElementById('syncBtn').onclick = async () => {
+  const current = getDbUrl();
+  const entered = prompt(
+    "Paste your Firebase Realtime Database URL here\n" +
+    "(e.g. https://your-project-default-rtdb.firebaseio.com)\n\n" +
+    "Use the same URL on every device so checkboxes sync.",
+    current || "https://"
+  );
+  if (entered === null) return;
+  const cleaned = entered.trim().replace(/\/$/, "");
+  if (!cleaned || !cleaned.startsWith("http")) {
+    alert("Invalid URL - sync settings unchanged.");
+    return;
+  }
+  setDbUrl(cleaned);
+  const remote = await fetchRemoteState();
+  if (remote) {
+    if (confirm("Data already exists at this address. Load it here (overwrites local checkboxes)?")) {
+      state = remote;
+      lastSyncedRemote = JSON.stringify(remote);
+      render();
+    } else {
+      await pushRemoteState();
+      lastSyncedRemote = JSON.stringify(state);
+    }
+  } else {
+    await pushRemoteState();
+    lastSyncedRemote = JSON.stringify(state);
+  }
+  updateSavedLabel();
+  alert("Sync configured. This URL is saved on this device/browser only - paste the same URL once on each device.");
+};
+
+(async function init(){
+  await loadState();
+  updateSavedLabel();
+  if (getDbUrl()) {
+    setInterval(() => refreshFromRemote(false), 20000);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") refreshFromRemote(false);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
